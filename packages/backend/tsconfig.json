@@ -1,0 +1,10 @@
+{
+  "extends": "@workspace/typescript-config/base.json",
+  "compilerOptions": {
+    "paths": {
+      "@workspace/backend/*": ["./config/*"]
+    }
+  },
+  "include": ["."],
+  "exclude": ["node_modules"]
+}
