@@ -9,13 +9,7 @@ import { Button } from "@workspace/ui/components/button";
 export default function Home() {
   return (
     <>
-      <Authenticated>
-        <UserButton />
-        <Content />
-      </Authenticated>
-      <Unauthenticated>
-        <SignInButton />
-      </Unauthenticated>
+      <Content/>
     </>
   );
 }

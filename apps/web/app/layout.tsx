@@ -5,6 +5,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "@/components/theme-provider";
 
+
 const geist = Geist({subsets:['latin'],variable:'--font-sans'})
 
 const fontMono = Geist_Mono({
@@ -25,7 +26,10 @@ export default function RootLayout({
     >
       <body>
         <ClerkProvider>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <ConvexClientProvider>
+              {children}
+
+            </ConvexClientProvider>
         </ClerkProvider>
       </body>
     </html>
