@@ -1,5 +1,9 @@
 "use client"
 
+import { WidgetView } from "@/module/widget/ui/views/widget-views"
+import { use } from "react"
+
+/* 
 import { Button } from "@workspace/ui/components/button"
 import { useVapi } from "@/module/widget/hooks/use-vapi"
 export default function Page() {
@@ -24,3 +28,18 @@ export default function Page() {
     </div>
   )
 }
+ */
+interface Props{
+  searchParams: Promise<{
+    o: string
+  }>
+}
+
+const Page = ({searchParams}: Props)=>{
+  const {o} = use(searchParams)
+  return(
+    <WidgetView organizationId={o}/>
+  )
+}
+
+export default Page;
