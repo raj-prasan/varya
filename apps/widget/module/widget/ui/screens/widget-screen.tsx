@@ -11,7 +11,7 @@ import { Input } from "@workspace/ui/components/input";
 import WidgetHeader from "../components/widdget-header";
 import { useMutation } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
-import { platform } from "os";
+
 import { Doc } from "@workspace/backend/_generated/dataModel";
 
 //temporary organizayionId
