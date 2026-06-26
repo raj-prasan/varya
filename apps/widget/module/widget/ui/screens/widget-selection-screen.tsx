@@ -58,7 +58,7 @@ export const WidgetSelectionScreen = ()=>{
                     </p>
                 </div>
             </WidgetHeader>
-            <div className="flex flex-col flex-1 p-4 gap-y-4 overflow-y-auto">
+            <div className="flex flex-col flex-1 p-4 gap-y-4 overflow-y-auto justify-center">
                 <Button className="h-16 w-full justify-between"
                 variant={"outline"}
                 onClick={handleNewConversation}
@@ -71,6 +71,7 @@ export const WidgetSelectionScreen = ()=>{
                         <ChevronRightIcon/>
                     </div>
                 </Button>
+                
             </div>
         </>
     )
