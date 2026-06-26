@@ -1,13 +1,15 @@
 "use client"
 
 import { screenAtom } from "../../atoms/widget-atoms"
+import { WidgetErrorScreen } from "../screens/error-screen"
 /* import WidgetHeader from "../components/widdget-header"
 import WidgetFooter from "../components/widget-footer" */
-import WidgetAuthScreen from "../screens/widget-screen"
+import WidgetAuthScreen from "../screens/widget-auth-screen"
 import { useAtomValue } from "jotai"
+import { WidgetLoadingScreen } from "../screens/widget-loading-screen"
 
 interface Props{
-    organizationId: string
+    organizationId: string | null
 }
 
 export const WidgetView = ({organizationId}: Props)=>{
@@ -15,8 +17,8 @@ export const WidgetView = ({organizationId}: Props)=>{
     const screen = useAtomValue(screenAtom)
 
     const screenComponents = {
-        error: <p>Error</p>,
-        loading: <p>loading</p>,
+        error: <WidgetErrorScreen/>,
+        loading: <WidgetLoadingScreen organizationId={organizationId}/>,
         auth: <WidgetAuthScreen/>,
         voice: <p>voice</p>,
         inbox: <p>inbox</p>,
