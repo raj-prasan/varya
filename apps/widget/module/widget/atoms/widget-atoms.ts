@@ -1,8 +1,9 @@
 import { atom } from "jotai";
 import { WidgetScreen } from "../types";
-import { atomFamily, atomWithStorage } from "jotai/utils";
+import { atomWithStorage } from "jotai/utils";
 import { CONTACT_SESSION_KEY } from "../constants";
 import { Id } from "@workspace/backend/_generated/dataModel";
+import { atomFamily } from "jotai-family";
 
 
 export const screenAtom = atom<WidgetScreen>("loading");
@@ -13,6 +14,5 @@ export const loadingMessageAtom = atom <string| null>(null);
 
 export const organizationIdAtom = atom<string | null>(null);
 
-// Organization scoped contact session
-
 export const contactSessionIdAtomFamily = atomFamily((organizationId : string)=> atomWithStorage<Id<"contactSessions">| null>(`${CONTACT_SESSION_KEY}_${organizationId}`, null))
+export const conversationIdAtom = atom<Id<"conversations">| null>(null)

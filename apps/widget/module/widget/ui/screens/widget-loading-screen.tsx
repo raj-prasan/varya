@@ -6,7 +6,6 @@ import WidgetHeader from "../components/widdget-header"
 import { useEffect, useState } from "react"
 import { useAction, useMutation } from "convex/react"
 import { api } from "@workspace/backend/_generated/api"
-import { Id } from "@workspace/backend/_generated/dataModel"
 
 type InitStep  =  "org"| "session" | "settings" | "vapi" | "done"
 
@@ -41,7 +40,8 @@ export const WidgetLoadingScreen = ({organizationId}: {organizationId: string| n
         .then((result)=> {
             if(result.valid){
                 setOrganization(organizationId);
-                setStep("session")
+                setStep("session");
+            
             }
             else{
                 setErrorMessage(result.reason || "invalid configuration");
@@ -49,7 +49,7 @@ export const WidgetLoadingScreen = ({organizationId}: {organizationId: string| n
             }
         }).catch((error)=>{
             setErrorMessage('Unable to verify organization');;
-            setScreen(error)
+            setScreen("error")
         })
     
 
@@ -93,7 +93,7 @@ export const WidgetLoadingScreen = ({organizationId}: {organizationId: string| n
         }
         const hasValidSession = contactSessionId && sessionValid;
         setScreen(hasValidSession? "selection" : "auth")
-    }, [step,contactSessionId,setScreen, setScreen])
+    }, [step,contactSessionId,sessionValid, setScreen, setStep])
     
     return(
         <>
