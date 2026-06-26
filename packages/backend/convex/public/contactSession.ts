@@ -27,6 +27,11 @@ export const create = mutation({
         const now = Date.now();
         const expiresAt = now + SESSION_DURATION_MS;
 
+        const prevContactSessionId = await ctx.db.query("contactSessions").withIndex("by_email", (q) => q.eq("email", args.email)).first()
+        if(prevContactSessionId){
+            return prevContactSessionId._id;
+        }
+
         const contactSessionId = await ctx.db.insert("contactSessions", {
             name: args.name,
             email: args.email,
@@ -35,5 +40,32 @@ export const create = mutation({
             metaData: args.metaData
         })
         return contactSessionId;
+    }
+})
+
+export const validate = mutation({
+    args: {
+        contactSessionId: v.id("contactSessions"),
+
+    },
+    handler:async(ctx, args)=>{
+        const contactSession = await ctx.db.get("contactSessions", args.contactSessionId);
+
+        if(!contactSession){
+            return {
+                valid: false,
+                reason: "Contact session not found."
+            }
+        }
+        if(contactSession.expiresAt< Date.now()){
+            return {
+                valid: false,
+                reason: "Contact session expired."
+            }
+        }
+        return {
+            valid: true,
+            contactSession
+        }
     }
 })
