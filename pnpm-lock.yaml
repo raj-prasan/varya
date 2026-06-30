@@ -141,6 +141,9 @@ importers:
       convex:
         specifier: ^1.41.0
         version: 1.41.0(@clerk/react@6.10.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
+      date-fns:
+        specifier: ^4.4.0
+        version: 4.4.0
       form:
         specifier: ^0.2.5
         version: 0.2.5

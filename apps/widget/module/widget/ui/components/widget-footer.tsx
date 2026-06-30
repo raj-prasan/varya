@@ -14,7 +14,7 @@ const WidgetFooter = () => {
             size={"icon"}
             variant={"ghost"}
             >
-                <HomeIcon className={cn("size-5" ,screen ==="selection" && "text-destructive  ")}/>
+                <HomeIcon className={cn("size-5" ,screen ==="selection" && "text-primary")}/>
             </Button>
 
             <Button className="h-14 flex-1 rounded-none"
