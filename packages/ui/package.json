@@ -9,6 +9,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@dicebear/collection": "9.4.1",
+    "@dicebear/core": "9.4.1",
     "@radix-ui/react-use-controllable-state": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

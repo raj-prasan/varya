@@ -34,8 +34,7 @@ interface Props{
     o: string
   }>
 }
-
-const Page = ({searchParams}: Props)=>{
+ const Page = ({searchParams}: Props)=>{
   const {o} = use(searchParams)
   return(
     <WidgetView organizationId={o}/>
