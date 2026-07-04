@@ -14,7 +14,9 @@ export const DashboardLayout = async ({
     <AuthGuard>
       <SidebarProvider defaultOpen={defaultOpen}>
         <DashboardSidebar />
-        <main className="flex flex-1 flex-col">{children}</main>
+        <main className="flex flex-1 min-h-0 min-w-0 flex-col overflow-hidden">
+          {children}
+        </main>
       </SidebarProvider>
     </AuthGuard>
   )

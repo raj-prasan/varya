@@ -1,0 +1,11 @@
+import { ConversationsLayout } from "@/modules/ui/layouts/conversation-layout";
+
+const Layout = ({children}: {children: React.ReactNode})=>{
+    return(
+        <ConversationsLayout>
+            {children}
+        </ConversationsLayout>
+    )
+}
+
+export default Layout;
