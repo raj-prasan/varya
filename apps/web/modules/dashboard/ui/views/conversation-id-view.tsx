@@ -4,9 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { api } from "@workspace/backend/_generated/api"
-import { Id } from "@workspace/backend/_generated/dataModel"
+import { Doc, Id } from "@workspace/backend/_generated/dataModel"
 import { Button } from "@workspace/ui/components/button"
-import { useAction, useMutation, useQuery } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { MoreHorizontalIcon, Wand2Icon } from "lucide-react"
 import { toUIMessages, useThreadMessages } from "@convex-dev/agent/react"
 import { Field } from "@workspace/ui/components/field"
@@ -30,6 +30,8 @@ import {
 } from "@workspace/ui/components/ai/message"
 import { AIResponse } from "@workspace/ui/components/ai/response"
 import { DicebearAvatar } from "@workspace/ui/components/dicebear-avatar"
+import { ConversationStatusButton } from "../components/conversation-status-button"
+
 
 const formSchema = z.object({
   message: z.string().min(1, "Message is required"),
@@ -58,6 +60,7 @@ export const ConversationIdView = ({
   })
 
   const createMessage = useMutation(api.private.messages.create)
+  const updateStatus = useMutation(api.private.conversations.updateStatus)
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!conversation) {
       return
@@ -75,6 +78,18 @@ export const ConversationIdView = ({
         <Button size={"sm"} variant={"ghost"}>
           <MoreHorizontalIcon />
         </Button>
+        <ConversationStatusButton
+          status={conversation?.status}
+          onClick={(value: Doc<"conversations">["status"]) => {
+            if (!conversation) {
+              return
+            }
+            updateStatus({
+              conversationId: conversation._id,
+              status: value,
+            })
+          }}
+        />
       </header>
       <AIConversation className="flex-1 min-h-0">
         <AIConversationContent>
