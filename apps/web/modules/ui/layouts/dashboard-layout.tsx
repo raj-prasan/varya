@@ -1,6 +1,7 @@
 import { AuthGuard } from "@/modules/auth/ui/components/auth-guard"
 import { DashboardSidebar } from "@/modules/dashboard/ui/components/dashboard-sidebar"
 import { SidebarProvider } from "@workspace/ui/components/sidebar"
+import { Provider } from "jotai"
 import { cookies } from "next/headers"
 
 export const DashboardLayout = async ({
@@ -12,12 +13,14 @@ export const DashboardLayout = async ({
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
   return (
     <AuthGuard>
-      <SidebarProvider defaultOpen={defaultOpen}>
-        <DashboardSidebar />
-        <main className="flex flex-1 min-h-0 min-w-0 flex-col overflow-hidden">
-          {children}
-        </main>
-      </SidebarProvider>
+      <Provider>
+        <SidebarProvider defaultOpen={defaultOpen}>
+          <DashboardSidebar />
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            {children}
+          </main>
+        </SidebarProvider>
+      </Provider>
     </AuthGuard>
   )
 }
