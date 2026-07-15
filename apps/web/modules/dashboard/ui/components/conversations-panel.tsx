@@ -107,7 +107,7 @@ export const ConversationsPanel = () => {
           </Button>
         </div>
       ) : (
-        <ScrollArea className="max-h-[calc(100vh-49px)]">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="flex w-full flex-1 flex-col text-sm">
             {conversations.results.map((conversation) => {
               const isLastMessageFromOperator =
