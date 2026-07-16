@@ -10,10 +10,9 @@ import { OPERATOR_MESSAGE_ENHANCEMENT_PROMPT } from "../constants"
 
 export const enhanceResponse = action({
   args: {
-    prompt : v.string(),
-
+    prompt: v.string(),
   },
-  handler : async(ctx, args)=>{
+  handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity()
 
     if (identity === null) {
@@ -41,20 +40,20 @@ export const enhanceResponse = action({
     }
 
     const response = await generateText({
-      model : google("gemini-2.5-flash-lite"),
+      model: google("gemini-2.5-flash-lite"),
       messages: [
         {
           role: "system",
-          content: OPERATOR_MESSAGE_ENHANCEMENT_PROMPT
+          content: OPERATOR_MESSAGE_ENHANCEMENT_PROMPT,
         },
         {
           role: "user",
-          content: args.prompt
-        }
-      ]
+          content: args.prompt,
+        },
+      ],
     })
-    return response.text;
-  }
+    return response.text
+  },
 })
 
 export const create = mutation({
@@ -111,11 +110,16 @@ export const create = mutation({
         message: "Convrsation Resolved",
       })
     }
+    if (conversation.status === "unresolved") {
+      await ctx.db.patch(conversation._id, {
+        status: "escalated",
+      })
+    }
 
     await saveMessage(ctx, components.agent, {
       threadId: conversation.threadId,
       //CHECK : Check if agent name is needed
-      agentName : identity.familyName,
+      agentName: identity.familyName,
       message: {
         role: "assistant",
         content: args.prompt,
