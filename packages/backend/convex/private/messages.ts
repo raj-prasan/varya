@@ -1,9 +1,61 @@
 import { ConvexError, v } from "convex/values"
 import { action, mutation, query } from "../_generated/server"
 import { components, internal } from "../_generated/api"
+import { generateText } from "ai"
 import { supportAgent } from "../system/ai/agents/supportAgent"
 import { paginationOptsValidator } from "convex/server"
 import { saveMessage } from "@convex-dev/agent"
+import { google } from "@ai-sdk/google"
+import { OPERATOR_MESSAGE_ENHANCEMENT_PROMPT } from "../constants"
+
+export const enhanceResponse = action({
+  args: {
+    prompt : v.string(),
+
+  },
+  handler : async(ctx, args)=>{
+    const identity = await ctx.auth.getUserIdentity()
+
+    if (identity === null) {
+      throw new ConvexError({
+        code: "UNAUTORIZED",
+        message: "Identity not found",
+      })
+    }
+    const organization = identity.o
+
+    const orgId =
+      typeof organization === "object" &&
+      organization !== null &&
+      !Array.isArray(organization) &&
+      "id" in organization &&
+      typeof organization.id === "string"
+        ? organization.id
+        : undefined
+
+    if (!orgId) {
+      throw new ConvexError({
+        code: "UNAUTORIZED",
+        message: "Organization not found",
+      })
+    }
+
+    const response = await generateText({
+      model : google("gemini-2.5-flash-lite"),
+      messages: [
+        {
+          role: "system",
+          content: OPERATOR_MESSAGE_ENHANCEMENT_PROMPT
+        },
+        {
+          role: "user",
+          content: args.prompt
+        }
+      ]
+    })
+    return response.text;
+  }
+})
 
 export const create = mutation({
   args: {

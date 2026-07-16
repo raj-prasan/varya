@@ -19,7 +19,9 @@ export const ConversationStatusButton = ({status, onClick} : {
                     <Button size={"sm"} variant={"ghost"}>
                       {status && (
                         <ConversationStatusIcon status={status} />
+                        
                       )}
+                      <p>{status && status.charAt(0).toUpperCase() + status.slice(1)}</p>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

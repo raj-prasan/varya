@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as constants from "../constants.js";
 import type * as private_conversations from "../private/conversations.js";
 import type * as private_messages from "../private/messages.js";
 import type * as public_contactSession from "../public/contactSession.js";
@@ -28,6 +29,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  constants: typeof constants;
   "private/conversations": typeof private_conversations;
   "private/messages": typeof private_messages;
   "public/contactSession": typeof public_contactSession;

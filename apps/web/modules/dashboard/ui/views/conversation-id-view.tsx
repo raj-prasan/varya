@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form"
 import { api } from "@workspace/backend/_generated/api"
 import { Doc, Id } from "@workspace/backend/_generated/dataModel"
 import { Button } from "@workspace/ui/components/button"
-import { useMutation, useQuery } from "convex/react"
-import { MoreHorizontalIcon, Wand2Icon } from "lucide-react"
+import { useAction, useMutation, useQuery } from "convex/react"
+import { LoaderCircle, MoreHorizontalIcon, Wand2Icon } from "lucide-react"
 import { toUIMessages, useThreadMessages } from "@convex-dev/agent/react"
 import { Field } from "@workspace/ui/components/field"
 import {
@@ -31,7 +31,11 @@ import {
 import { AIResponse } from "@workspace/ui/components/ai/response"
 import { DicebearAvatar } from "@workspace/ui/components/dicebear-avatar"
 import { ConversationStatusButton } from "../components/conversation-status-button"
-
+import {useInfiniteScroll} from "@workspace/ui/hooks/use-infinite-scroll"
+import { InfiniteScrollTrigger } from "@workspace/ui/components/infinite-scroll-trigger"
+import { Skeleton } from "@workspace/ui/components/skeleton"
+import { cn } from "@workspace/ui/lib/utils"
+import { useState } from "react"
 
 const formSchema = z.object({
   message: z.string().min(1, "Message is required"),
@@ -42,15 +46,23 @@ export const ConversationIdView = ({
 }: {
   conversationId: Id<"conversations">
 }) => {
+  const[isEnhancing,setIsEnhancing] = useState(false);
   const conversation = useQuery(api.private.conversations.getOne, {
     conversationId,
   })
+  const enhanceMesssage = useAction(api.private.messages.enhanceResponse);
 
   const messages = useThreadMessages(
     api.private.messages.getMany,
     conversation?.threadId ? { threadId: conversation.threadId } : "skip",
     { initialNumItems: 10 }
   )
+
+  const {topElementRef,handleLoadMore,canLoadMore,isLoadingMore} = useInfiniteScroll({
+    status: messages.status,
+    loadMore: messages.loadMore,
+    loadSize:10,
+  })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,6 +82,11 @@ export const ConversationIdView = ({
       conversationId: conversation._id,
       prompt: values.message
     })
+  }
+
+
+  if(conversation === undefined || messages.status === "LoadingFirstPage"){
+    return <ConversationIdViewLogin/>
   }
 
   return (
@@ -93,6 +110,12 @@ export const ConversationIdView = ({
       </header>
       <AIConversation className="flex-1 min-h-0">
         <AIConversationContent>
+          <InfiniteScrollTrigger
+          canLoadMore={canLoadMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore= {handleLoadMore}
+          ref = {topElementRef}
+          />
           {toUIMessages(messages.results ?? [])?.map((message) => (
             <AIMessage
               from={message.role === "user" ? "assistant" : "user"}
@@ -120,7 +143,7 @@ export const ConversationIdView = ({
         <Field data-invalid={!!form.formState.errors.message}>
           <AIInput onSubmit={form.handleSubmit(onSubmit)}>
             <AIInputTextarea
-              disabled={conversation?.status === "resolved"}
+              disabled={conversation?.status === "resolved" || isEnhancing}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault()
@@ -136,9 +159,26 @@ export const ConversationIdView = ({
             />
             <AIInputToolbar>
               <AIInputTools>
-                <AIInputButton>
+                <AIInputButton 
+                disabled = {isEnhancing}
+                onClick={async()=>{
+                  try {
+                    setIsEnhancing(true);
+                    const newMsg = await enhanceMesssage({
+                      prompt: form.getValues("message")
+                    });
+                     form.setValue("message", newMsg);
+                  } catch (error) {
+                    
+                  }
+                  finally{
+                    setIsEnhancing(false);
+                  }
+                }}>
                   <Wand2Icon/>
-                  Enhance
+                  {isEnhancing? <p className="flex gap-2">Enhancing
+                    <LoaderCircle className="animate-spin"/>
+                  </p> : <p>Enhance</p>}
                 </AIInputButton>
               </AIInputTools>
               <AIInputSubmit
@@ -152,6 +192,53 @@ export const ConversationIdView = ({
             </AIInputToolbar>
           </AIInput>
         </Field>
+      </div>
+    </div>
+  )
+}
+
+
+export const ConversationIdViewLogin = ()=>{
+  return (
+    <div className="flex h-full flex-col bg-muted">
+      <header className="flex items-center justify-between border-b bg-background p-2.5">
+        <Button disabled size={"sm"} variant={"ghost"}>
+          <MoreHorizontalIcon />
+        </Button>
+      </header>
+      <AIConversation className="flex-1 min-h-0">
+        <AIConversationContent>
+          {Array.from({ length: 8 }).map((_, index) => {
+            const isUser = index % 2 === 0;
+            const widths = ["w-48", "w-60", "w-72"];
+            const width = widths[index % widths.length];
+
+            return (
+              <div
+                className={cn(
+                  "group flex w-full items-end justify-end gap-2 py-2 [&>div]:max-w-[80%]",
+                  isUser ? "is-user" : "is-assistant flex-row-reverse"
+                )}
+                key={index}
+              >
+                <Skeleton className={`h-9 ${width} rounded-lg bg-neutral-200`} />
+                <Skeleton className="size-8 rounded-full bg-neutral-200" />
+              </div>
+            );
+          })}
+        </AIConversationContent>
+      </AIConversation>
+      <div className="p-2">
+        <AIInput>
+          <AIInputTextarea
+            disabled
+            placeholder="Type your response as an operator..."
+          />
+          <AIInputToolbar>
+            <AIInputTools />
+            <AIInputSubmit disabled status="ready" />
+          </AIInputToolbar>
+        </AIInput>
       </div>
     </div>
   )

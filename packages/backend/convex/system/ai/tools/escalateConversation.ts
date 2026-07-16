@@ -5,15 +5,16 @@ import { internal } from "../../../_generated/api"
 
 export const escalateConversation = createTool({
   description: "Escalate a convesation",
-  title: "resolve_convversation",
+  title: "escalate_conversation",
   inputSchema: z.object({}),
   execute: async (ctx) => {
     if (!ctx.threadId) {
       return "Misssing  Thread ID"
     }
-    await ctx.runMutation(internal.system.conversations.resolve, {
+    await ctx.runMutation(internal.system.conversations.escalate, {
       threadId: ctx.threadId,
     })
+    console.log("Escalated")
 
     await supportAgent.saveMessage(ctx, {
       threadId: ctx.threadId,
