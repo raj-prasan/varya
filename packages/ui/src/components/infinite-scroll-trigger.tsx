@@ -20,7 +20,7 @@ export const InfiniteScrollTrigger = forwardRef<
     isLoadingMore,
     onLoadMore,
     loadMoreText = "Load More",
-    noMoreText = "No more messages",
+    noMoreText = "No more content",
     className,
   },
   ref
