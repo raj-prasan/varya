@@ -41,6 +41,7 @@ import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 
 import { PluginCard, type Features } from "../components/plugin-card"
+import { VapiConnectedView } from "../components/vapi-connected-view"
 
 
 const VAPI_LOGO = "/vapi.jpg"
@@ -270,6 +271,14 @@ export const VapiView = () => {
   const isLoading = vapiPlugin === undefined
   const isConnected = !!vapiPlugin
 
+  const removePlugin = useMutation(api.private.plugins.remove)
+
+  const onDisconnect = async()=>{
+  removePlugin({
+    service : "vapi"
+  })
+  }
+
   return (
     <div className="h-full overflow-y-auto bg-muted p-8 pt-0">
       <VapiConnectDialog onOpenChange={setConnectOpen} open={connectOpen} />
@@ -279,7 +288,7 @@ export const VapiView = () => {
 
         <div className="mt-6">
           {isConnected ? (
-            <p>Connected!!!</p>
+            <VapiConnectedView onDisconnect={onDisconnect}/>
           ) : (
             <PluginCard
               features={vapiFeatures}
