@@ -1,7 +1,9 @@
+import { VapiView } from "@/modules/plugins/ui/views/vapi-view";
+
 const Page = () => {
     return ( 
-        <div>
-            Vapi
+        <div className="h-full">
+            <VapiView/>
         </div>
      );
 }

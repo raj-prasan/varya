@@ -6,6 +6,7 @@ import { SUPPORT_AGENT_PROMPT } from "../../../constants";
 
 export const supportAgent = new Agent(components.agent, {
   name: "My Agent",
-  languageModel: google.chat("gemini-2.5-flash"),
+  languageModel: google.chat("gemini-3.1-flash-lite"),
   instructions: SUPPORT_AGENT_PROMPT,
+  
 });

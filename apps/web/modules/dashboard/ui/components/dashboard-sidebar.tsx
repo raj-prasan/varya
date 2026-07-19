@@ -129,7 +129,7 @@ export const DashboardSidebar = ()=>{
                                 <SidebarMenuButton 
                                 asChild
                                 className={cn(
-                                    isActive(item.url) && "bg-linear-to-b from-primary! to-foreground! text-sidebar-primary-foreground!"
+                                    isActive(item.url) && "bg-primary! to-foreground! text-sidebar-primary-foreground!"
                                 )}
                                 isActive = {isActive(item.url)}
                                 >
@@ -151,7 +151,7 @@ export const DashboardSidebar = ()=>{
                                 <SidebarMenuButton 
                                 asChild
                                 className={cn(
-                                    isActive(item.url) && "bg-linear-to-b from-primary! to-foreground! text-sidebar-primary-foreground!"
+                                    isActive(item.url) && "bg-primary! to-foreground! text-sidebar-primary-foreground!"
                                 )}
                                 isActive = {isActive(item.url)}
                                 >
