@@ -27,7 +27,7 @@ export const create = mutation({
         const now = Date.now();
         const expiresAt = now + SESSION_DURATION_MS;
 
-        const prevContactSessionId = await ctx.db.query("contactSessions").withIndex("by_email", (q) => q.eq("email", args.email)).first()
+        const prevContactSessionId = await ctx.db.query("contactSessions").withIndex("by_email", (q) => q.eq("email", args.email)).unique()
         if(prevContactSessionId){
             return prevContactSessionId._id;
         }

@@ -1,22 +1,19 @@
 "use client"
 import { zodResolver } from "@hookform/resolvers/zod"
-import {z} from "zod"
-import { useForm} from "react-hook-form"
-import {useThreadMessages, toUIMessages} from "@convex-dev/agent/react"
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { useThreadMessages, toUIMessages } from "@convex-dev/agent/react"
 import { useAtomValue, useSetAtom } from "jotai"
-import WidgetHeader from "../components/widdget-header"
+import WidgetHeader from "../components/widget-header"
 import { Button } from "@workspace/ui/components/button"
 import { ArrowLeftIcon, MenuIcon } from "lucide-react"
-import {
-  Field,
-  FieldLabel,
-  FieldError,
-} from "@workspace/ui/components/field"
+import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
 import {
   contactSessionIdAtomFamily,
   conversationIdAtom,
   organizationIdAtom,
   screenAtom,
+  widgetSettingsAtom,
 } from "../../atoms/widget-atoms"
 import { api } from "@workspace/backend/_generated/api"
 import { useAction, useQuery } from "convex/react"
@@ -41,16 +38,18 @@ import {
   AISuggestion,
   AISuggestions,
 } from "@workspace/ui/components/ai/suggestion"
-import {useInfiniteScroll} from "@workspace/ui/hooks/use-infinite-scroll"
+import { useInfiniteScroll } from "@workspace/ui/hooks/use-infinite-scroll"
 import { InfiniteScrollTrigger } from "@workspace/ui/components/infinite-scroll-trigger"
 import { DicebearAvatar } from "@workspace/ui/components/dicebear-avatar"
+import { useMemo } from "react"
 const formSchema = z.object({
-  message: z.string().min(1, "Message is required")
+  message: z.string().min(1, "Message is required"),
 })
 
 export const WidgetChatScreen = () => {
   const setScreen = useSetAtom(screenAtom)
   const setConversationId = useSetAtom(conversationIdAtom)
+  const widgetSettings = useAtomValue(widgetSettingsAtom)
   const conversationId = useAtomValue(conversationIdAtom)
   const organizationId = useAtomValue(organizationIdAtom)
   const contactSessionId = useAtomValue(
@@ -69,40 +68,53 @@ export const WidgetChatScreen = () => {
     setConversationId(null)
     setScreen("selection")
   }
+  const suggestions = useMemo(() => {
+    if (!widgetSettings) {
+      return []
+    }
+    return Object.keys(widgetSettings.defaultSuggestions).map((key) => {
+      return widgetSettings.defaultSuggestions[
+        key as keyof typeof widgetSettings.defaultSuggestions
+      ]
+    })
+  }, [widgetSettings])
 
-  const messages = useThreadMessages(api.public.messages.getMany,
+  const messages = useThreadMessages(
+    api.public.messages.getMany,
     conversation?.threadId && contactSessionId
-    ? {
-        threadId: conversation.threadId,
-        contactSessionId,
-    }: "skip",
-    {initialNumItems: 10}
+      ? {
+          threadId: conversation.threadId,
+          contactSessionId,
+        }
+      : "skip",
+    { initialNumItems: 10 }
   )
-  const {topElementRef,handleLoadMore,canLoadMore,isLoadingMore} = useInfiniteScroll({
-    status: messages.status,
-    loadMore: messages.loadMore,
-    loadSize:10,
-  })
+  const { topElementRef, handleLoadMore, canLoadMore, isLoadingMore } =
+    useInfiniteScroll({
+      status: messages.status,
+      loadMore: messages.loadMore,
+      loadSize: 10,
+    })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues:{
-      message : ""
-    }
-  }) 
-  const createMessage = useAction(api.public.messages.create);
-  const onSubmit = async (values: z.infer<typeof formSchema>)=>{
-    if(!conversation || !contactSessionId){
-      return;
+    defaultValues: {
+      message: "",
+    },
+  })
+  const createMessage = useAction(api.public.messages.create)
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!conversation || !contactSessionId) {
+      return
     }
     form.reset()
     await createMessage({
       threadId: conversation.threadId,
       prompt: values.message,
-      contactSessionId
+      contactSessionId,
     })
   }
-  
+
   return (
     <>
       <WidgetHeader className="flex items-center justify-between">
@@ -123,16 +135,16 @@ export const WidgetChatScreen = () => {
       <AIConversation>
         <AIConversationContent>
           <InfiniteScrollTrigger
-          canLoadMore={canLoadMore}
-          isLoadingMore={isLoadingMore}
-          onLoadMore= {handleLoadMore}
-          ref = {topElementRef}
+            canLoadMore={canLoadMore}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={handleLoadMore}
+            ref={topElementRef}
           />
-          {toUIMessages(messages.results || []).map((message)=>{
-            return(
+          {toUIMessages(messages.results || []).map((message) => {
+            return (
               <AIMessage
-              from={message.role === "user" ? "user" : "assistant"}
-              key = {message.id}
+                from={message.role === "user" ? "user" : "assistant"}
+                key={message.id}
               >
                 <AIMessageContent>
                   <AIResponse>{message.text}</AIResponse>
@@ -149,31 +161,57 @@ export const WidgetChatScreen = () => {
           })}
         </AIConversationContent>
       </AIConversation>
+      {toUIMessages(messages.results ?? []).length === 1 && <AISuggestions className="flex w-full flex-col items-end p-2">
+        {suggestions.map((suggestion) => {
+          if (!suggestion) {
+            return null
+          }
+          return (
+            <AISuggestion
+              key={suggestion}
+              suggestion={suggestion}
+              onClick={() => {
+                form.setValue("message", suggestion,{
+                  shouldValidate: true,
+                  shouldDirty: true,
+                  shouldTouch : true
+                });
+                form.handleSubmit(onSubmit)();
+              }}
+            ></AISuggestion>
+          )
+        })}
+      </AISuggestions>}
+      
       <Field data-invalid={!!form.formState.errors.message}>
         <AIInput
-          className="rounded-none border-x-0 border-b-0"
+          className="rounded-none border-x-0 border-b-0 "
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <AIInputTextarea
-            disabled = {conversation?.status === "resolved"}
-            onKeyDown={(e)=>{
-              if(e.key === "Enter" && !e.shiftKey){
-                e.preventDefault();
+            disabled={conversation?.status === "resolved"}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault()
                 form.handleSubmit(onSubmit)()
               }
             }}
-            placeholder={conversation?.status === "resolved"?
-              "This conversation has been resolved":
-              "Type your message"
+            placeholder={
+              conversation?.status === "resolved"
+                ? "This conversation has been resolved"
+                : "Type your message"
             }
             {...form.register("message")}
           />
           <AIInputToolbar>
             <AIInputTools />
-            <AIInputSubmit 
-            disabled = {conversation?.status === "resolved" || !form.formState.isValid}
-            type="submit"
-            status={form.formState.isSubmitting ? "submitted" : "ready"} />
+            <AIInputSubmit
+              disabled={
+                conversation?.status === "resolved" || !form.formState.isValid
+              }
+              type="submit"
+              status={form.formState.isSubmitting ? "submitted" : "ready"}
+            />
           </AIInputToolbar>
         </AIInput>
       </Field>

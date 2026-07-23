@@ -95,13 +95,13 @@ export const create = mutation({
     },
     handler: async (ctx, args)=>{
         const session = await ctx.db.get(args.contactSessionId);
-
         if(!session || session.expiresAt < Date.now()){
             throw new ConvexError({
                 code: "UNAUTORIZED",
-                message: "Invalid Session."
+                message: "Invalid Sessionssss."
             })
         }
+        const widgetSettings = await ctx.db.query("widgetSettings").withIndex("by_organization_id",(q)=> q.eq("organizationId", args.organizationId)).unique();
         const {threadId}  = await supportAgent.createThread(ctx, {
             userId: args.organizationId
         })
@@ -109,9 +109,7 @@ export const create = mutation({
             threadId,
             message:{
                 role: "assistant",
-
-                //todo : modify to widget initial
-                content: "Hello, how can i help you today?"
+                content: widgetSettings?.greetMessage || "Hello, how can i help you todday?"
             }
         })
         const conversationId = await ctx.db.insert("conversations",{

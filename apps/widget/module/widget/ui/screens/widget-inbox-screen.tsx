@@ -1,7 +1,7 @@
 "use client"
 import { useAtomValue, useSetAtom } from "jotai"
 import { AlertTriangleIcon, ArrowLeftIcon } from "lucide-react"
-import WidgetHeader from "../components/widdget-header"
+import WidgetHeader from "../components/widget-header"
 import WidgetFooter from "../components/widget-footer"
 import { Button } from "@workspace/ui/components/button"
 import { contactSessionIdAtomFamily, conversationIdAtom, organizationIdAtom, screenAtom } from "../../atoms/widget-atoms"

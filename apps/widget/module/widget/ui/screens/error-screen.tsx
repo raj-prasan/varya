@@ -2,7 +2,7 @@
 import { useAtomValue } from "jotai"
 import { AlertTriangleIcon } from "lucide-react"
 import { errorMessageAtom } from "../../atoms/widget-atoms"
-import WidgetHeader from "../components/widdget-header"
+import WidgetHeader from "../components/widget-header"
 
 export const WidgetErrorScreen = ()=>{
     const errorMessage = useAtomValue(errorMessageAtom);

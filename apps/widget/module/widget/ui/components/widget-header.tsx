@@ -5,7 +5,7 @@ const WidgetHeader = ({children, className}: {
     className?: string
     }) => {
     return ( 
-        <header className={cn("bg-primary/80 text-sidebar-primary-foreground p-6", className)}>
+        <header className={cn("shrink-0 bg-primary/80 text-sidebar-primary-foreground p-6", className)}>
             {children}
         </header>
      );
